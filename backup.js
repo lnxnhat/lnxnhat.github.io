@@ -46,18 +46,14 @@ public class BackupSystem {
 
                 // Phân tách các cột bằng hàm phân tích CSV cơ bản
                 List<String> columns = parseCSVLine(line);
-                if (columns.size() < 8) {
-                    continue; // Bỏ qua dòng lỗi hoặc thiếu cột
+                if (columns.size() < 4) {
+                    continue; // Bỏ qua dòng lỗi hoặc thiếu cột cốt lõi
                 }
 
-                String timestamp = columns.get(0);
-                String actionText = columns.get(1).trim();
-                String recordId = safeIdString(columns.get(2));
-                String name = columns.get(3);
-                String uClass = columns.get(4);
-                String bYear = columns.get(5);
-                String bMonth = columns.get(6);
-                String bDay = columns.get(7);
+                String timestamp = columns.get(0); // Cột A: Dấu thời gian
+                String recordId = safeIdString(columns.get(1)); // Cột B: Mã định danh ID sinh tự động
+                String infoText = columns.get(2).trim(); // Cột C: Chuỗi "Tên - Lớp: ... (Ngày sinh)"
+                String base64Image = columns.size() > 3 ? columns.get(3).trim() : ""; // Cột D: Chữ ký Base64 công khai
 
                 if (recordId.isEmpty() || "0000".equals(recordId)) {
                     continue;
@@ -69,62 +65,68 @@ public class BackupSystem {
                     idFolder.mkdirs();
                 }
 
-                // Định dạng chuỗi ngày sinh hoàn chỉnh
-                String birthday = padLeft(bDay, 2, '0') + "/" + padLeft(bMonth, 2, '0') + "/" + bYear;
+                // Phân bóc dữ liệu từ cột thông tin tổng hợp
+                String name = "Chưa rõ";
+                String uClass = "N/A";
+                String birthday = "Chưa cập nhật";
 
-                // Trích xuất dữ liệu Ghi chú và Ảnh chữ ký mã hóa từ cột Action
-                String note = "Trống";
-                String base64Image = "";
-                if (actionText.contains("SAVE - Note:")) {
-                    try {
-                        String[] partsNote = actionText.split("SAVE - Note: ");
-                        if (partsNote.length > 1) {
-                            String[] partsSig = partsNote[1].split(" \\| Sig: ");
-                            note = partsSig[0].isEmpty() ? "Trống" : partsSig[0];
-                            if (partsSig.length > 1 && !partsSig[1].startsWith("...")) {
-                                base64Image = partsSig[1];
+                try {
+                    if (infoText.contains(" - Lớp: ")) {
+                        String[] mainParts = infoText.split(" - Lớp: ");
+                        name = mainParts[0].trim();
+                        if (mainParts.length > 1 && mainParts[1].contains(" (")) {
+                            String[] classParts = mainParts[1].split(" \\(");
+                            uClass = classParts[0].trim();
+                            birthday = classParts[1].replace(")", "").trim();
+                            // Chuẩn hóa định dạng ngày sinh dd/mm/yyyy từ yyyy-mm-dd nếu cần
+                            if (birthday.contains("-")) {
+                                String[] dParts = birthday.split("-");
+                                if (dParts.length == 3) {
+                                    birthday = dParts[2] + "/" + dParts[1] + "/" + dParts[0];
+                                }
                             }
                         }
-                    } catch (Exception e) {
-                        // Bỏ qua lỗi bóc tách nếu định dạng chuỗi bị biến đổi dữ liệu
+                    } else {
+                        name = infoText;
                     }
+                } catch (Exception e) {
+                    name = infoText; // Phòng ngừa chuỗi lỗi cấu trúc bóc tách
                 }
 
-                // TRƯỜNG HỢP 1: YÊU CẦU XÓA HỒ SƠ (REMOVE)
-                if (actionText.toUpperCase().contains("REMOVE")) {
+                // TRƯỜNG HỢP 1: YÊU CẦU XÓA HỒ SƠ (Nếu chuỗi thông tin hoặc id chứa từ khóa REMOVE)
+                if (infoText.toUpperCase().contains("REMOVE") || recordId.toUpperCase().contains("REMOVE")) {
                     File removeFile = new File(idFolder, "remove.txt");
                     if (!removeFile.exists()) {
-                        String removeContent = "Hồ sơ ID " + recordId + " đã bị xóa trên hệ thống web.\nThời gian xóa: " + timestamp + "\n";
+                        String removeContent = "Hồ sơ ID " + recordId + " đã bị xóa trên hệ thống.\nThời gian xóa: " + timestamp + "\n";
                         writeFile(removeFile, removeContent);
                         System.out.println("🗑️ [ID: " + recordId + "] -> Đã tạo tệp đánh dấu xóa (remove.txt)");
                     }
                     continue;
                 }
 
-                // TRƯỜNG HỢP 2: LƯU MỚI HOẶC CHỈNH SỬA HỒ SƠ
+                // TRƯỜNG HỢP 2: LƯU MỚI HOẶC CẬP NHẬT HỒ SƠ
                 File baseTxtFile = new File(idFolder, recordId + ".txt");
                 String content = "=== THÔNG TIN HỒ SƠ ID: " + recordId + " ===\n"
                         + "Họ và Tên: " + name + "\n"
                         + "Ngày Sinh: " + birthday + "\n"
                         + "Đơn vị/Lớp: " + uClass + "\n"
-                        + "Ghi Chú: " + note + "\n"
                         + "Cập nhật hệ thống: " + timestamp + "\n";
 
                 // Tạo file gốc nếu chưa từng tồn tại
                 if (!baseTxtFile.exists()) {
                     writeFile(baseTxtFile, content);
-                    if (!base64Image.isEmpty()) {
+                    if (!base64Image.isEmpty() && base64Image.startsWith("data:image")) {
                         saveSignatureImage(base64Image, new File(idFolder, recordId + ".jpeg"));
                     }
-                    System.out.println("🆕 [ID: " + recordId + "] -> Đã khởi tạo hồ sơ gốc thành công!");
+                    System.out.println("🆕 [ID: " + recordId + "] -> Đã khởi tạo hồ sơ gốc từ Google Sheets!");
                 } else {
-                    // Nếu file gốc đã tồn tại, kiểm tra xem bản ghi này đã được xử lý chưa
+                    // Nếu file gốc đã tồn tại, kiểm tra trùng lặp qua dấu thời gian
                     String origContent = readFile(baseTxtFile);
                     if (origContent.contains("Cập nhật hệ thống: " + timestamp)) {
-                        continue; // Bỏ qua vì trùng thời gian file gốc
+                        continue; 
                     }
 
-                    // Quét số thứ tự các file fix đang có trong thư mục để tự động tăng tiến
+                    // Quét số thứ tự file sửa đổi (fix1, fix2...) tránh đè dữ liệu cũ
                     int maxFixNum = 0;
                     File[] files = idFolder.listFiles();
                     if (files != null) {
@@ -133,7 +135,7 @@ public class BackupSystem {
                             if (fName.endsWith(".txt") && fName.contains("fix")) {
                                 try {
                                     String numStr = fName.substring(fName.indexOf("fix") + 3, fName.lastIndexOf(".txt"));
-                                    int num = Integer.parseInt(numStr);
+                                    int num = Integer.parseInt(numStr.trim());
                                     if (num > maxFixNum) {
                                         maxFixNum = num;
                                     }
@@ -142,7 +144,7 @@ public class BackupSystem {
                         }
                     }
 
-                    // Kiểm tra xem lịch sử sửa đổi này đã được ghi thành file fix trước đó chưa
+                    // Kiểm tra lịch sử trùng lặp của các file bản vá (fix) cũ
                     boolean duplicateFix = false;
                     for (int i = 1; i <= maxFixNum; i++) {
                         File checkFile = new File(idFolder, recordId + " fix" + i + ".txt");
@@ -155,15 +157,15 @@ public class BackupSystem {
                         continue;
                     }
 
-                    // Tạo file fix tăng tiến (fix1, fix2, fix3...)
+                    // Ghi tệp sao lưu tăng tiến khi phát hiện thay đổi dữ liệu
                     int nextFix = maxFixNum + 1;
                     File fixTxtFile = new File(idFolder, recordId + " fix" + nextFix + ".txt");
                     writeFile(fixTxtFile, content);
                     
-                    if (!base64Image.isEmpty()) {
+                    if (!base64Image.isEmpty() && base64Image.startsWith("data:image")) {
                         saveSignatureImage(base64Image, new File(idFolder, recordId + " fix" + nextFix + ".jpeg"));
                     }
-                    System.out.println("🔧 [ID: " + recordId + "] -> Phát hiện dữ liệu thay đổi! Đã sinh file bóc tách: " + recordId + " fix" + nextFix + ".txt");
+                    System.out.println("🔧 [ID: " + recordId + "] -> Phát hiện bản ghi mới! Tạo file phân tách lịch sử: " + recordId + " fix" + nextFix + ".txt");
                 }
             }
 
@@ -172,17 +174,22 @@ public class BackupSystem {
             System.out.println("====================================================");
 
         } catch (Exception e) {
-            System.out.println("❌ Lỗi thực thi hệ thống: " + e.getMessage());
+            System.out.println("❌ Lỗi thực thi hệ thống Java: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    // --- CÁC HÀM TRỢ GIÚP TIỆN ÍCH THUẦN JAVA KHÔNG DÙNG THƯ VIỆN NGOÀI ---
+    // --- CÁC HÀM TIỆN ÍCH HỖ TRỢ XỬ LÝ CHUỖI VÀ TỆP TIN ---
     
     private static String safeIdString(String rawId) {
+        if (rawId == null || rawId.trim().isEmpty()) return "";
         String val = rawId.trim().split("\\.")[0];
-        if (val.isEmpty()) return "";
-        return padLeft(val, 4, '0');
+        try {
+            int num = Integer.parseInt(val);
+            return padLeft(String.valueOf(num), 4, '0');
+        } catch (Exception e) {
+            return val;
+        }
     }
 
     private static String padLeft(String input, int length, char padChar) {
@@ -212,15 +219,15 @@ public class BackupSystem {
     }
 
     private static void saveSignatureImage(String base64Str, File destFile) {
-        if (!base64Str.startsWith("data:image")) return;
         try {
+            if (!base64Str.contains(",")) return;
             String encoded = base64Str.split(",")[1];
             byte[] imgData = Base64.getDecoder().decode(encoded);
             try (FileOutputStream fos = new FileOutputStream(destFile)) {
                 fos.write(imgData);
             }
         } catch (Exception e) {
-            System.out.println("   ⚠️ Lỗi giải mã chữ ký ảnh: " + e.getMessage());
+            System.out.println("   ⚠️ Lỗi bóc tách lưu ảnh .jpeg chữ ký: " + e.getMessage());
         }
     }
 
