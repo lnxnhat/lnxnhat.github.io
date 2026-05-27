@@ -31,13 +31,15 @@
       pointer-events: none; z-index: 9999;
     }
 
-    /* Khung Header chứa Logo LNXNHAT gốc */
-    header { text-align: center; padding: 30px 10px 10px 10px; }
-    .logo-main { font-family: 'Orbitron', sans-serif; font-size: 2.5rem; font-weight: 900; color: var(--blue-glow); text-shadow: 0 0 15px rgba(0, 240, 255, 0.6); letter-spacing: 5px; }
-    .logo-sub { font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; color: var(--dim); letter-spacing: 2px; margin-top: 5px; }
+    /* HEADER CHỨA LOGO LNXNHAT 2 MÀU NGUYÊN BẢN */
+    header { text-align: center; padding: 35px 10px 15px 10px; }
+    .logo-main { font-family: 'Orbitron', sans-serif; font-size: 2.8rem; font-weight: 900; letter-spacing: 6px; }
+    .logo-main .part-1 { color: var(--blue-glow); text-shadow: 0 0 15px rgba(0, 240, 255, 0.6); }
+    .logo-main .part-2 { color: var(--white); text-shadow: 0 0 10px rgba(234, 242, 255, 0.3); }
+    .logo-sub { font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; color: var(--dim); letter-spacing: 3px; margin-top: 5px; }
 
-    /* Bộ đếm ngược thời gian hiển thị trên góc */
-    .timer-banner { background: rgba(255, 0, 85, 0.1); border: 1px solid var(--danger); color: var(--danger); font-family: 'Orbitron', sans-serif; padding: 10px; text-align: center; border-radius: 6px; max-width: 300px; margin: 0 auto 20px auto; font-weight: bold; display: none; box-shadow: 0 0 10px rgba(255,0,85,0.2); }
+    /* BANNER ĐẾM NGƯỢC THỜI GIAN KHÓA WEB GUEST */
+    .timer-banner { background: rgba(0, 240, 255, 0.05); border: 1px solid var(--blue-glow); color: var(--blue-glow); font-family: 'Orbitron', sans-serif; padding: 12px; text-align: center; border-radius: 6px; max-width: 320px; margin: 0 auto 25px auto; font-weight: bold; display: none; box-shadow: 0 0 12px rgba(0,240,255,0.2); letter-spacing: 1px; }
 
     .view { display: none; padding: 10px 20px 40px 20px; max-width: 1200px; margin: 0 auto; animation: scanline 0.4s ease-out; }
     .view.active { display: block; }
@@ -70,7 +72,6 @@
     .btn { padding: 12px 24px; font-family: 'Orbitron'; font-weight: bold; border-radius: 4px; cursor: pointer; border: none; font-size: 0.85rem; }
     .btn-submit { background: var(--blue-accent); color: white; box-shadow: 0 4px 10px rgba(0,114,255,0.4); }
     .btn-submit:hover { background: #2687ff; }
-    .btn-danger { background: var(--danger); color: white; }
     
     .error-container { text-align: center; padding-top: 60px; color: var(--danger); }
     .error-code { font-family: 'Orbitron'; font-size: 6rem; font-weight: 900; text-shadow: 0 0 20px rgba(255,0,85,0.4); }
@@ -79,12 +80,12 @@
 <body>
 
   <header>
-    <div class="logo-main">LNXNHAT</div>
+    <div class="logo-main"><span class="part-1">LNX</span><span class="part-2">NHAT</span></div>
     <div class="logo-sub">SECURITY SYSTEM INTEGRATION</div>
   </header>
 
   <div class="timer-banner" id="lock-timer-display">
-    THỜI GIAN TRUY CẬP CÒN LẠI: <span id="timer-countdown">01:30</span>
+    HỆ THỐNG ĐÓNG SAU: <span id="timer-countdown">01:30</span>
   </div>
 
   <div id="router-wrapper">
@@ -92,17 +93,9 @@
     <div id="view-error" class="view">
       <div class="error-container">
         <div class="error-code">403</div>
-        <h2 style="font-family:'Orbitron'">ACCESS DENIED / TIMEOUT LOGGED</h2>
-        <p style="margin-top:15px; color:var(--dim)" id="error-message-text">Quy trình truy cập không hợp lệ hoặc thời gian xem hồ sơ của thiết bị này đã hết hạn.</p>
+        <h2 style="font-family:'Orbitron'">ACCESS DENIED</h2>
+        <p style="margin-top:15px; color:var(--dim)" id="error-message-text">Liên kết không hợp lệ hoặc mã khóa của bạn đã hết hạn truy cập vĩnh viễn.</p>
       </div>
-    </div>
-
-    <div id="view-guest-id" class="view">
-      <div class="form-container" id="guest-detail-card"></div>
-    </div>
-
-    <div id="view-guest-home" class="view">
-      <div class="card-grid" id="guest-grid-container"></div>
     </div>
 
     <div id="view-guest-id-create" class="view">
@@ -117,7 +110,7 @@
         </div>
         <div class="form-group">
           <label>Năm sinh</label>
-          <input type="number" id="g-birth" placeholder="Ví dụ: 2000" />
+          <input type="number" id="g-birth" placeholder="Ví dụ: 2010" />
         </div>
         <div class="form-group">
           <label>Ghi chú</label>
@@ -134,10 +127,18 @@
       </div>
     </div>
 
+    <div id="view-guest-home" class="view">
+      <div class="card-grid" id="guest-grid-container"></div>
+    </div>
+
+    <div id="view-guest-id" class="view">
+      <div class="form-container" id="guest-detail-card"></div>
+    </div>
+
     <div id="view-ad-home" class="view">
-      <h2 style="font-family:'Orbitron'; color:var(--blue-glow); text-align:center; margin-bottom:20px;">ADMIN PANEL</h2>
+      <h2 style="font-family:'Orbitron'; color:var(--blue-glow); text-align:center; margin-bottom:20px;">ADMIN CONTROL PANEL</h2>
       <div class="card-grid">
-        <div class="add-box" onclick="navigateWithRules('#/ad/create')">
+        <div class="add-box" onclick="navigateWithRules('#/aD/create')">
           <div class="plus-icon">+</div>
           <div style="font-family:'Orbitron'; font-size:0.8rem; color:var(--dim); margin-top:5px">THÊM HỒ SƠ MỚI</div>
         </div>
@@ -173,112 +174,126 @@
     ];
 
     let currentSelectedId = ""; 
-    let previousHash = "";      
     let globalTimerInterval = null;
 
-    // --- BỘ ĐIỀU HƯỚNG ROUTER QUY TẮC NGHIÊM NGẶT ---
+    // --- BỘ ĐIỀU HƯỚNG PHÂN QUYỀN CHÌA KHÓA BẢO MẬT LUỒNG WEB ---
     function navigateWithRules(targetHash) {
+      // Chuẩn hóa hash
       if (!targetHash.startsWith('#/')) {
         targetHash = targetHash.replace('#', '#/');
       }
       
-      const currentHash = location.hash || '#/';
-      const cur = currentHash.replace('#/', '').replace('#', '').toLowerCase();
-      const tar = targetHash.replace('#/', '').replace('#', '').toLowerCase();
+      const cur = (location.hash || '#/').replace('#/', '').replace('#', '');
+      const tar = targetHash.replace('#/', '').replace('#', '');
 
-      // Kiểm tra xem thiết bị này đã từng bị khóa trang home chưa
-      if (localStorage.getItem('lnxnhat_locked') === 'true' && tar === 'guest/home') {
-        document.getElementById('error-message-text').innerText = "Thời gian truy cập xem danh sách hồ sơ trên thiết bị này đã hết hạn và bị khóa hoàn toàn.";
+      // Kiểm tra trạng thái khóa của Guest trên thiết bị
+      if (localStorage.getItem('lnxnhat_locked') === 'true' && (tar.startsWith('guest/home') || tar.startsWith('guest/id'))) {
         location.hash = '#/error';
         return;
       }
 
-      let allowed = false;
-
-      if (tar === 'guest/id/create' || tar === 'guest' || tar === '') {
-        allowed = true;
+      // 1. Chìa khóa bảo mật chủ nhà: #/aD (a thường, D hoa) -> vào thẳng hệ thống vô hạn
+      if (tar === 'aD' || tar === 'aD/home') {
+        location.hash = '#/aD/home';
+        return;
       }
-      else if (tar === 'guest/home') {
-        // Chỉ cho phép xem danh sách nếu đang trong thời gian đếm ngược hợp lệ
-        if (localStorage.getItem('lnxnhat_timer_end') !== null && localStorage.getItem('lnxnhat_locked') !== 'true') {
-          allowed = true;
-        }
-      }
-      else if (tar.startsWith('guest/id') && !tar.endsWith('/create')) {
-        if (cur === 'guest/home' && localStorage.getItem('lnxnhat_locked') !== 'true') allowed = true;
-      }
-      else if (tar === 'ad/home' || tar === 'ad/create' || tar.startsWith('ad/id')) {
-        allowed = true; 
-      }
-
-      if (allowed) {
-        previousHash = currentHash;
+      if (tar.startsWith('aD/')) {
         location.hash = targetHash;
-      } else {
-        location.hash = '#/error';
+        return;
       }
-    }
 
-    window.addEventListener('hashchange', routerCore);
-    
-    function routerCore() {
-      let hash = location.hash || '#/';
-      let cleanHash = hash.replace('#/', '').replace('#', '');
-      
-      // Quy tắc chuyển thẳng: Khi vào gốc #/guest hoặc không có hash, tự nhảy tới form nhập liệu luôn
-      if (cleanHash === '' || cleanHash === 'guest') {
+      // 2. Chìa khóa Guest: #/guest -> đá thẳng sang trang nhập liệu để xác minh
+      if (tar === 'guest') {
         location.hash = '#/guest/id/create';
         return;
       }
 
-      let checkHash = cleanHash.toLowerCase();
+      // 3. Cho phép truy cập Form nhập liệu tự do
+      if (tar === 'guest/id/create') {
+        location.hash = targetHash;
+        return;
+      }
 
-      // Kiểm tra trạng thái khóa thời gian thực
-      if (localStorage.getItem('lnxnhat_locked') === 'true' && (checkHash === 'guest/home' || checkHash.startsWith('guest/id?='))) {
-        document.getElementById('error-message-text').innerText = "Thời gian xem hồ sơ đã hết hạn. Hệ thống bảo mật tự động khóa thiết bị.";
+      // 4. Kiểm tra quyền vào guest/home (Chỉ cho phép khi ổ khóa 1p30s đang kích hoạt mở)
+      if (tar === 'guest/home' || (tar.startsWith('guest/id') && !tar.endsWith('/create'))) {
+        if (localStorage.getItem('lnxnhat_timer_end') !== null && localStorage.getItem('lnxnhat_locked') !== 'true') {
+          location.hash = targetHash;
+        } else {
+          location.hash = '#/error';
+        }
+        return;
+      }
+
+      // Mặc định các link không khai báo bị đá về trang lỗi
+      location.hash = '#/error';
+    }
+
+    // Lắng nghe sự kiện đổi URL của trình duyệt
+    window.addEventListener('hashchange', () => {
+      let hash = location.hash || '#/';
+      let cleanHash = hash.replace('#/', '').replace('#', '');
+      
+      // Chặn và điều hướng thông minh dựa trên chìa khóa gõ trên URL
+      if (cleanHash === 'guest') {
+        navigateWithRules('#/guest');
+        return;
+      }
+      if (cleanHash === 'aD') {
+        navigateWithRules('#/aD');
+        return;
+      }
+
+      // Xử lý chặn cứng nếu thiết bị đã hết hạn
+      if (localStorage.getItem('lnxnhat_locked') === 'true' && (cleanHash.startsWith('guest/home') || cleanHash.startsWith('guest/id?='))) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.getElementById('view-error').classList.add('active');
         document.getElementById('lock-timer-display').style.display = 'none';
         return;
       }
 
+      // Bật tắt view tương ứng
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
 
-      if (checkHash === 'guest/home') {
+      if (cleanHash === 'guest/id/create') {
+        setupCreateForm('g-id');
+        document.getElementById('view-guest-id-create').classList.add('active');
+        document.getElementById('lock-timer-display').style.display = 'none';
+        setTimeout(initSignatureCanvas, 50);
+      }
+      else if (cleanHash === 'guest/home') {
         renderGridContainer('guest-grid-container', false);
         document.getElementById('view-guest-home').classList.add('active');
-        startLockCountdown(); // Đảm bảo bộ đếm luôn chạy khi ở trang này
+        startLockCountdown();
       }
-      else if (checkHash.startsWith('guest/id') && !checkHash.endsWith('/create')) {
-        const idParam = cleanHash.split('?=')[1]; 
+      else if (cleanHash.startsWith('guest/id') && !cleanHash.endsWith('/create')) {
+        const idParam = cleanHash.split('?=')[1];
         extractDetailRecord(idParam, 'guest-detail-card', false);
         document.getElementById('view-guest-id').classList.add('active');
         startLockCountdown();
       }
-      else if (checkHash === 'guest/id/create') {
-        setupCreateForm('g-id');
-        document.getElementById('view-guest-id-create').classList.add('active');
-        setTimeout(initSignatureCanvas, 50); 
-      }
-      else if (checkHash === 'ad/home') {
+      else if (cleanHash === 'aD/home') {
         renderGridContainer('ad-grid-container', true);
         document.getElementById('view-ad-home').classList.add('active');
+        document.getElementById('lock-timer-display').style.display = 'none';
       }
-      else if (checkHash.startsWith('ad/id')) {
+      else if (cleanHash.startsWith('aD/id')) {
         const idParam = cleanHash.split('?=')[1];
         extractDetailRecord(idParam, 'ad-detail-card', true);
         document.getElementById('view-ad-id').classList.add('active');
+        document.getElementById('lock-timer-display').style.display = 'none';
       }
-      else if (checkHash === 'ad/create') {
+      else if (cleanHash === 'aD/create') {
         setupCreateForm('ad-id');
         document.getElementById('view-ad-create').classList.add('active');
+        document.getElementById('lock-timer-display').style.display = 'none';
       }
       else {
         document.getElementById('view-error').classList.add('active');
+        document.getElementById('lock-timer-display').style.display = 'none';
       }
-    }
+    });
 
-    // --- CƠ CHẾ ĐẾM NGƯỢC THỜI GIAN THỰC CHỐNG TẮT TAB/F5 ---
+    // --- BỘ ĐẾM NGƯỢC THỜI GIAN THỰC (REALTIME LOCK) ---
     function startLockCountdown() {
       if (globalTimerInterval) clearInterval(globalTimerInterval);
       
@@ -299,9 +314,8 @@
           clearInterval(globalTimerInterval);
           localStorage.setItem('lnxnhat_locked', 'true');
           displayBanner.style.display = 'none';
-          routerCore(); // Kích hoạt chặn khóa màn hình lập tức
+          location.hash = '#/error';
         } else {
-          // Tính toán số phút và giây còn lại từ mili-giây
           const totalSeconds = Math.floor(timeLeft / 1000);
           const minutes = Math.floor(totalSeconds / 60);
           const seconds = totalSeconds % 60;
@@ -326,8 +340,7 @@
         const box = document.createElement('div');
         box.className = "sig-box";
         box.onclick = () => {
-          currentSelectedId = item.id;
-          navigateWithRules(isAdmin ? `#ad/id?=${item.id}` : `#guest/id?=${item.id}`);
+          navigateWithRules(isAdmin ? `#aD/id?=${item.id}` : `#guest/id?=${item.id}`);
         };
         
         box.innerHTML = `
@@ -359,7 +372,7 @@
           <img src="${target.sig}" style="max-width:100%; height:auto;" />
         </div>
         <div style="display:flex; gap:10px; margin-top:20px;">
-          <button class="btn btn-submit" style="flex:1" onclick="navigateWithRules('${isAdmin ? '#/ad/home' : '#/guest/home'}')">QUAY LẠI DANH SÁCH</button>
+          <button class="btn btn-submit" style="flex:1" onclick="navigateWithRules('${isAdmin ? '#aD/home' : '#guest/home'}')">QUAY LẠI DANH SÁCH</button>
         </div>
       `;
     }
@@ -389,7 +402,7 @@
       if(ctx && canvas) { ctx.fillStyle = '#000000'; ctx.fillRect(0, 0, canvas.width, 180); } 
     }
 
-    // --- GỬI GOOGLE FORM VÀ KÍCH HOẠT BỘ KHÓA THỜI GIAN REALTIME ---
+    // --- LƯU HỒ SƠ & BẮT ĐẦU ĐẾM NGƯỢC THỜI GIAN KHÓA ---
     function handleGuestSubmit() {
       const id = document.getElementById('g-id').value;
       const name = document.getElementById('g-name').value.trim();
@@ -399,34 +412,28 @@
 
       if (!name) { alert("Vui lòng nhập họ tên!"); return; }
 
-      // Đẩy data ngầm lên Google Form
+      // Bắn data lên Google Form ngầm
       const formUrl = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSdN-r671XTq3CPWkldA1E_6u1IckFsG-_URc8YSUEHNKLKppg/formResponse";
       const formData = new FormData();
       formData.append("entry.804035975", id);
       formData.append("entry.1227843883", name);
       formData.append("entry.919040770", sigData); 
+      fetch(formUrl, { method: "POST", body: formData, mode: "no-cors" }).catch(err => console.error(err));
 
-      fetch(formUrl, { method: "POST", body: formData, mode: "no-cors" })
-      .catch(err => console.error(err));
-
-      // Thêm vào database tạm thời của phiên chạy hiện tại
       localDatabase.push({ id: id, name: name, birth: birth, note: note, sig: sigData });
-      
-      alert("Xử lý hoàn thành! Bạn có 1 phút 30 giây để xem danh sách trước khi liên kết tự động đóng.");
 
-      // THIẾT LẬP THỜI GIAN CHẾT (Mốc thời gian hiện tại + 90 giây)
-      const duration = 1 * 60 * 1000 + 30 * 1000; // 1 phút 30 giây tính theo mili-giây
+      // KÍCH HOẠT Ổ KHÓA 1 PHÚT 30 GIÂY HỆ THỐNG GUEST
+      const duration = 1 * 60 * 1000 + 30 * 1000; 
       localStorage.setItem('lnxnhat_timer_end', (Date.now() + duration).toString());
       localStorage.setItem('lnxnhat_locked', 'false');
 
-      // Reset sạch form nhập liệu
+      // Reset form nhập liệu
       document.getElementById('g-name').value = "";
       document.getElementById('g-birth').value = "";
       document.getElementById('g-note').value = "";
       clearSignatureCanvas();
 
-      // Chuyển qua màn hình danh sách và kích hoạt bộ đếm
-      previousHash = location.hash;
+      // Chuyển hướng thẳng sang trang danh sách của khách
       location.hash = '#/guest/home';
     }
 
@@ -434,18 +441,19 @@
       const id = document.getElementById('ad-id').value;
       const name = document.getElementById('ad-name').value.trim();
       if (!name) { alert("Vui lòng điền tên mẫu!"); return; }
-      localDatabase.push({ id: id, name: name, birth: "", note: "Admin Temp", sig: "" });
+      localDatabase.push({ id: id, name: name, birth: "", note: "Admin Entry", sig: "" });
       document.getElementById('ad-name').value = "";
-      previousHash = location.hash;
-      location.hash = '#/ad/home';
+      location.hash = '#/aD/home';
     }
 
-    // Tự động kiểm tra bộ đếm ngược ngay khi khởi động thiết bị
+    // Tự động kiểm tra trạng thái đếm ngược khi khởi chạy trang
     window.onload = () => {
+      const currentHash = location.hash || '';
       if (localStorage.getItem('lnxnhat_timer_end')) {
         startLockCountdown();
       }
-      routerCore();
+      // Kích hoạt lõi định tuyến router lần đầu
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
     };
   </script>
 </body>
