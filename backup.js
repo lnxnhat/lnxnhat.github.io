@@ -1,5 +1,5 @@
 // 1. DÁN URL BẠN VỪA COPY Ở BƯỚC TRÊN VÀO ĐÂY (Giữ nguyên dấu ngoặc kép)
-const WEB_APP_URL = "https://script.google.com/macros/s/.../exec"; 
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzcPOiRWgzvGWzG_N7EHwxE9LkgxmE3p3FP4Bou521cWrKhEvw794XaS_IAGYDzaoHw/exec"; 
 
 // 2. Hàm gửi dữ liệu lên Google Script
 async function sendToDrive(payloadToSend) {
