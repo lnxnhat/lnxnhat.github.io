@@ -89,6 +89,7 @@ function processRawData(rawRecords) {
 async function syncFromDrive() {
     if (!WEB_APP_URL || WEB_APP_URL === "ĐIỀN_URL_APPS_SCRIPT_CỦA_BẠN_VÀO_ĐÂY") return;
     try {
+        console.log("Đang gửi:", payload);
         const res = await fetch(WEB_APP_URL + "?action=getData");
         const data = await res.json();
         
