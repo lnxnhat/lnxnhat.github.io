@@ -1,5 +1,5 @@
 // DÁN LINK WEB APP MỚI CỦA BẠN VÀO ĐÂY
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyC.../exec"; 
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxsLlv0jKYRMrP0YSqQyAyVRhDdue7w0AkyJqFwZmz_s6dgL2ccHbFzjIaT6Dm0WDVq/exec"; 
 
 window.localDatabase = [];
 window.rawDatabase = [];
