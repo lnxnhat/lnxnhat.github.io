@@ -17,11 +17,30 @@
     body { background: var(--black); color: var(--white); font-family: 'Exo 2', sans-serif; min-height: 100vh; overflow-x: hidden; }
     body::before { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,240,255,0.02) 2px, rgba(0,240,255,0.02) 4px); pointer-events: none; z-index: 9999; }
 
-    /* ── Logo ── */
-    .logo-container { text-align: center; margin: 30px 0 10px 0; }
-    .logo-main { font-family: 'Orbitron', sans-serif; font-size: 2.2rem; font-weight: 900; letter-spacing: 5px; display: inline-block; }
-    .logo-main .part-1 { color: var(--blue-glow); text-shadow: 0 0 15px rgba(0,240,255,0.6); }
+    /* ── Topbar (fixed) ── */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 5000;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 20px; gap: 14px;
+      background: rgba(5,8,17,0.94);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+    }
+    body { padding-top: 56px; }
+    .logo-main { font-family: 'Orbitron', sans-serif; font-size: 1.05rem; font-weight: 900; letter-spacing: 4px; white-space: nowrap; flex-shrink: 0; }
+    .logo-main .part-1 { color: var(--blue-glow); text-shadow: 0 0 12px rgba(0,240,255,0.7); }
     .logo-main .part-2 { color: var(--white); }
+    /* Search in topbar */
+    .search-wrap { flex: 1; max-width: 340px; position: relative; }
+    .search-wrap input {
+      width: 100%; background: rgba(0,0,0,0.6); border: 1px solid var(--border);
+      color: var(--white); padding: 7px 12px 7px 32px;
+      border-radius: 4px; font-family: 'Exo 2'; font-size: 0.88rem;
+      transition: border-color 0.2s;
+    }
+    .search-wrap input:focus { border-color: var(--blue-glow); outline: none; }
+    .search-wrap input::placeholder { color: var(--dim); }
+    .search-icon { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); color: var(--dim); font-size: 0.82rem; pointer-events: none; }
 
     /* ── Timer ── */
     .timer-banner { background: rgba(0,240,255,0.05); border: 1px solid var(--blue-glow); color: var(--blue-glow); font-family: 'Orbitron', sans-serif; padding: 10px; text-align: center; border-radius: 6px; max-width: 300px; margin: 10px auto; font-weight: bold; display: none; box-shadow: 0 0 12px rgba(0,240,255,0.2); letter-spacing: 1px; font-size: 0.9rem; }
@@ -133,7 +152,13 @@
   <!-- Toast container -->
   <div id="toast-container"></div>
 
-  <div class="logo-container">
+  <!-- Fixed topbar -->
+  <div class="topbar">
+    <div id="search-wrap-el" class="search-wrap" style="display:none;">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Tìm kiếm tên..." oninput="handleSearch()" autocomplete="off" />
+    </div>
+    <div style="flex:1;"></div>
     <div class="logo-main"><span class="part-1">LNX</span><span class="part-2">NHAT</span></div>
   </div>
 
@@ -356,7 +381,16 @@
     };
 
     // ══════════════════════════════════════
-    // GRID RENDER
+    // SEARCH HANDLER
+    // ══════════════════════════════════════
+    function handleSearch() {
+      const h = location.hash;
+      if (h.includes('aD/home'))    renderGridContainer('ad-grid-container', true);
+      if (h.includes('guest/home')) renderGridContainer('guest-grid-container', false);
+    }
+
+    // ══════════════════════════════════════
+    // GRID RENDER (có lọc tìm kiếm tên)
     // ══════════════════════════════════════
     function renderGridContainer(containerId, isAdmin) {
       const container = document.getElementById(containerId);
@@ -364,11 +398,24 @@
       container.innerHTML = '';
       let data = window.localDatabase || [];
 
+      // Lọc theo dropdown
       if (isAdmin) {
         const fc = document.getElementById('filter-class').value;
         const ft = document.getElementById('filter-tag').value;
         if (fc !== 'ALL') data = data.filter(i => i.class === fc);
         if (ft !== 'ALL') data = data.filter(i => i.relId === ft);
+      }
+
+      // Lọc theo ô tìm kiếm tên
+      const searchEl = document.getElementById('search-input');
+      const keyword  = searchEl ? searchEl.value.trim().toLowerCase() : '';
+      if (keyword) data = data.filter(i => i.name.toLowerCase().includes(keyword));
+
+      if (data.length === 0) {
+        container.innerHTML = `<p style="color:var(--dim); font-family:'Orbitron'; font-size:0.8rem; grid-column:1/-1; padding:20px 0;">
+          ${keyword ? '🔍 Không tìm thấy "' + keyword + '"' : 'Chưa có hồ sơ nào.'}
+        </p>`;
+        return;
       }
 
       data.forEach(item => {
@@ -377,8 +424,12 @@
         box.onclick = () => { location.hash = isAdmin ? `#/aD/id?=${item.id}` : `#/guest/id?=${item.id}`; };
         const tag = getTagInfo(item.relId);
         const tagHtml = tag ? `<div class="tag-badge" style="background:${tag.tagColor}">${tag.tagName}</div>` : '';
+        // Highlight tên khớp với keyword
+        const displayName = keyword
+          ? item.name.replace(new RegExp(`(${keyword})`, 'gi'), '<mark style="background:rgba(0,240,255,0.25);color:var(--blue-glow);">$1</mark>')
+          : item.name;
         box.innerHTML = `
-          <div class="name-tag">${item.name}</div>
+          <div class="name-tag">${displayName}</div>
           ${tagHtml}
           <div class="sub-info">ID: ${item.id} | Lớp: ${item.class || 'N/A'}</div>
           <img src="${item.sig || ''}" />
@@ -580,6 +631,36 @@
     }
 
     // ══════════════════════════════════════
+    // RESET FORM TẠO MỚI (xóa thông tin người trước)
+    // ══════════════════════════════════════
+    function resetAdminCreateForm() {
+      document.getElementById('ad-name').value  = '';
+      document.getElementById('ad-class').value = '';
+      document.getElementById('ad-birth').value = '';
+      document.getElementById('ad-note').value  = '';
+      // Xóa canvas chữ ký
+      setTimeout(() => {
+        if (canvases['ad-canvas'] && ctxs['ad-canvas']) {
+          ctxs['ad-canvas'].fillStyle = '#000000';
+          ctxs['ad-canvas'].fillRect(0, 0, canvases['ad-canvas'].width, canvases['ad-canvas'].height);
+        }
+      }, 60);
+    }
+
+    function resetGuestForm() {
+      document.getElementById('g-name').value  = '';
+      document.getElementById('g-class').value = '';
+      document.getElementById('g-birth').value = '';
+      document.getElementById('g-note').value  = '';
+      setTimeout(() => {
+        if (canvases['g-canvas'] && ctxs['g-canvas']) {
+          ctxs['g-canvas'].fillStyle = '#000000';
+          ctxs['g-canvas'].fillRect(0, 0, canvases['g-canvas'].width, canvases['g-canvas'].height);
+        }
+      }, 60);
+    }
+
+    // ══════════════════════════════════════
     // TIMER
     // ══════════════════════════════════════
     function startLockCountdown() {
@@ -628,14 +709,24 @@
       document.getElementById('lock-timer-display').style.display =
         (clean.startsWith('guest/home') || (clean.startsWith('guest/id') && !clean.endsWith('/create'))) ? 'block' : 'none';
 
-      if      (clean === 'guest/id/create') { document.getElementById('view-guest-id-create').classList.add('active'); setTimeout(() => initSignatureCanvas('g-canvas'), 50); }
+      // Hiện ô tìm kiếm tên chỉ ở trang danh sách
+      const showSearch = (clean === 'aD/home' || clean === 'guest/home');
+      const swEl = document.getElementById('search-wrap-el');
+      if (swEl) {
+        swEl.style.display = showSearch ? 'block' : 'none';
+        // Reset ô tìm kiếm khi chuyển trang
+        const si = document.getElementById('search-input');
+        if (si && !showSearch) si.value = '';
+      }
+
+      if      (clean === 'guest/id/create') { resetGuestForm(); document.getElementById('view-guest-id-create').classList.add('active'); setTimeout(() => initSignatureCanvas('g-canvas'), 50); }
       else if (clean === 'guest/home')      { window.refreshUI(); document.getElementById('view-guest-home').classList.add('active'); startLockCountdown(); }
       else if (clean.startsWith('guest/id') && !clean.endsWith('/create')) { extractDetailRecord(orig.split('?=')[1], 'guest-detail-card', false); document.getElementById('view-guest-id').classList.add('active'); startLockCountdown(); }
       else if (clean === 'aD/home')         { window.refreshUI(); document.getElementById('view-ad-home').classList.add('active'); }
       else if (clean === 'aD/tags')         { document.getElementById('view-ad-tags').classList.add('active'); }
       else if (clean.startsWith('aD/id'))   { extractDetailRecord(orig.split('?=')[1], 'ad-detail-card', true); document.getElementById('view-ad-id').classList.add('active'); }
       else if (clean.startsWith('aD/edit')) { openAdminEditForm(orig.split('?=')[1]); document.getElementById('view-ad-edit').classList.add('active'); }
-      else if (clean === 'aD/create')       { document.getElementById('view-ad-create').classList.add('active'); setTimeout(() => initSignatureCanvas('ad-canvas'), 50); }
+      else if (clean === 'aD/create')       { resetAdminCreateForm(); document.getElementById('view-ad-create').classList.add('active'); setTimeout(() => initSignatureCanvas('ad-canvas'), 50); }
       else                                   { document.getElementById('view-error').classList.add('active'); }
     });
 
