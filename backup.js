@@ -2,7 +2,7 @@
 //  backup.js — Storage & Sync Engine  |  LNXNhat System v3
 //  Thay YOUR_WEB_APP_URL bằng link deploy của bạn:
 // ============================================================
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbws_2ZwBOouGnLd0FxGDi6f0bUsNrV_YcB1Y8fjp_eu_RMJGfJDxoD7wkJI4ApoX456/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxsLlv0jKYRMrP0YSqQyAyVRhDdue7w0AkyJqFwZmz_s6dgL2ccHbFzjIaT6Dm0WDVq/exec";
 
 window.localDatabase = [];
 window.rawDatabase   = [];
@@ -143,15 +143,7 @@ async function sendToDrive(payload) {
     const result = await res.json();
 
     if (result.success) {
-      // Cập nhật sigUrl về Drive URL thay vì base64
-      if (result.sigUrl && payload.id) {
-        const match = window.rawDatabase.find(r => r.id === payload.id && r.sig === payload.sig);
-        if (match) {
-          match.sig = result.sigUrl;
-          window.localDatabase = processRawData(window.rawDatabase);
-          localStorage.setItem('lnxnhat_raw_backup', JSON.stringify(window.rawDatabase));
-        }
-      }
+      // Sig là base64, không cần cập nhật URL từ Drive nữa
       setTimeout(syncFromDrive, 3000);
       return { success: true };
     } else {
